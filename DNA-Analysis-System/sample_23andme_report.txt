@@ -1,0 +1,21 @@
+# This data file contains raw genotype data from 23andMe for Mehmet Öztürk
+# 
+# Below is a text version of your data from 23andMe's Personal Genome Service(R).
+# Each line represents one SNP.  For each SNP, we provide its identifier 
+# (an rsid or an internal id), its location on the reference human genome, 
+# and the genotype call oriented with respect to the plus strand on the human reference sequence.
+# 
+# More information about these changes is available at:
+# https://customercare.23andme.com/hc/en-us/articles/212196868
+#
+# rsid	chromosome	position	genotype
+rs1421085	1	241789839	CT
+rs429358	19	45411941	CT
+rs7412	19	45412079	CC
+rs7903146	10	11255098	TT
+rs1799950	17	41215900	GG
+rs113993960	7	117559590	AA
+rs334	11	5248232	AA
+rs121907967	2	179427244	GG
+rs9939609	16	53820579	AT
+rs762551	15	75042118	CC

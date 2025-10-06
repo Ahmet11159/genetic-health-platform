@@ -1,0 +1,13 @@
+# This data file provided by 23andMe, Inc. is for research purposes only.
+# Below are your raw, uninterpreted genetic data.
+# rsid	chromosome	position	genotype
+rs1801133	1	11856378	GG
+rs429358	19	45411941	TC
+rs7412	19	45412079	CC
+rs1801131	1	11854477	AA
+rs1799853	10	94781859	CC
+rs1057910	10	94781859	AA
+rs4244285	10	94781859	GG
+rs4986893	10	94781859	TT
+rs28399504	10	94781859	AA
+rs41291556	10	94781859	CC
