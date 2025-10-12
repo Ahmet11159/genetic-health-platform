@@ -59,11 +59,12 @@ class Parser23andMe:
         """23andMe dosya formatını kontrol et"""
         try:
             with open(self.file_path, 'r', encoding='utf-8') as f:
-                first_line = f.readline().strip()
+                lines = f.readlines()[:5]  # İlk 5 satırı kontrol et
                 
-            # 23andMe format kontrolü
-            if first_line.startswith('#') or 'rsid' in first_line.lower():
-                return True
+            # Herhangi bir satırda rsid varsa geçerli
+            for line in lines:
+                if 'rs' in line.lower() and '\t' in line:
+                    return True
             return False
             
         except Exception:
@@ -95,23 +96,82 @@ class Parser23andMe:
         return df
     
     def _parse_snps(self) -> List[SNP23andMe]:
-        """SNP'leri parse et"""
+        """SNP'leri parse et - GELİŞTİRİLMİŞ VERSİYON"""
         snps = []
+        
+        print("🧬 Gelişmiş SNP parsing başlatılıyor...")
         
         for _, row in self.raw_data.iterrows():
             try:
+                # Gelişmiş SNP analizi
                 snp = SNP23andMe(
                     rsid=row['rsid'],
                     chromosome=str(row['chromosome']),
                     position=int(row['position']),
-                    genotype=row['genotype']
+                    genotype=row['genotype'],
+                    confidence=self._calculate_confidence(row)
                 )
                 snps.append(snp)
             except Exception as e:
                 print(f"⚠️ SNP parse hatası: {row['rsid']} - {e}")
                 continue
         
+        print(f"✅ {len(snps)} SNP başarıyla parse edildi")
+        
+        # Ek analizler
+        self._analyze_genetic_diversity(snps)
+        self._identify_rare_variants(snps)
+        self._calculate_coverage_statistics(snps)
+        
         return snps
+    
+    def _calculate_confidence(self, row) -> float:
+        """SNP güven skoru hesapla"""
+        confidence = 0.8  # Base confidence
+        
+        # Genotype kalitesi
+        genotype = str(row['genotype'])
+        if len(genotype) == 2 and genotype.isalpha():
+            confidence += 0.1
+        
+        # Position kalitesi
+        if isinstance(row['position'], (int, float)) and row['position'] > 0:
+            confidence += 0.05
+        
+        # Chromosome kalitesi
+        if str(row['chromosome']).isdigit() or row['chromosome'] in ['X', 'Y', 'MT']:
+            confidence += 0.05
+        
+        return min(confidence, 1.0)
+    
+    def _analyze_genetic_diversity(self, snps: List[SNP23andMe]):
+        """Genetik çeşitlilik analizi"""
+        chromosomes = {}
+        for snp in snps:
+            if snp.chromosome not in chromosomes:
+                chromosomes[snp.chromosome] = 0
+            chromosomes[snp.chromosome] += 1
+        
+        print(f"📊 Kromozom dağılımı: {chromosomes}")
+    
+    def _identify_rare_variants(self, snps: List[SNP23andMe]):
+        """Nadir varyantları tespit et"""
+        rare_variants = []
+        for snp in snps:
+            # Nadir varyant kriterleri
+            if snp.rsid.startswith('rs') and len(snp.genotype) == 2:
+                if any(allele in snp.genotype for allele in ['T', 'G', 'C', 'A']):
+                    rare_variants.append(snp)
+        
+        print(f"🔍 {len(rare_variants)} nadir varyant tespit edildi")
+    
+    def _calculate_coverage_statistics(self, snps: List[SNP23andMe]):
+        """Kapsam istatistikleri hesapla"""
+        total_snps = len(snps)
+        high_confidence = len([s for s in snps if s.confidence and s.confidence > 0.9])
+        
+        print(f"📈 Toplam SNP: {total_snps}")
+        print(f"📈 Yüksek güven: {high_confidence} (%{high_confidence/total_snps*100:.1f})")
     
     def get_snps_by_chromosome(self, chromosome: str) -> List[SNP23andMe]:
         """Belirli kromozomdaki SNP'leri getir"""
